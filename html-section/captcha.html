@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="../css/captcha.css" rel="stylesheet" type="text/css">
+    </head>
+    <title>
+        Home - CAPTCHA Verification
+    </title>
+    <body>
+        <div class="center">
+        <h1 id="captchaHeading">Captcha Validation</h1>
+        <div id="captchaBackground">
+        <canvas id="captcha">captcha text</canvas>
+        <input id="textBox" type="text" name="text">
+        <div id="buttons">
+        <button id="submitButton" type="submit">Submit</button>
+        <button id="refreshButton" type="submit">Refresh</button>
+        </div>
+        <span id="output"></span>
+        </div>
+        </div>
+        <script src = "../javascript/captcha.js"></script>
+    </body>
+</html>

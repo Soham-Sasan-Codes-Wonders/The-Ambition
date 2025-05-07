@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM Chat - Llama</title>
+    <style>
+        #chat-interface {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        #response {
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .loading {
+            color: gray;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-interface">
+        <input type="text" id="userInput" placeholder="Ask me something..." />
+        <button onclick="sendMessage()">Send</button>
+        <div id="response">Response will appear here...</div>
+    </div>
+
+
+    <script>
+
+    async function sendMessage() {
+        const userInput = document.getElementById("userInput").value;
+        const responseElement = document.getElementById("response");
+        
+        responseElement.innerHTML = '<span class="loading">Loading...</span>';
+    
+        try {
+            const response = await fetch("http://127.0.0.1:3004/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: "c4ai-command-r-v01",
+                    messages: [{
+                        role: "user",
+                        content: userInput
+                    }],
+                    max_tokens: 5000,
+                    temperature: 0.7
+                })
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const data = await response.json();
+            console.log("Full response:", data);
+            
+            responseElement.innerText = data.choices[0].message.content;
+        } catch (error) {
+            console.error("Error details:", error);
+            responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+        }
+    }
+        
+    </script>
+</body>
+</html>

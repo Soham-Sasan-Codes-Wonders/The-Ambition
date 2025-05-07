@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLaVA Chat - Home</title>
+    <style>
+        #chat-interface {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        #response {
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .loading {
+            color: gray;
+            font-style: italic;
+        }
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+        }
+        #imagePreview {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-interface">
+        <input type="text" id="userInput" placeholder="Ask me something..." />
+        <input type="file" id="imageInput" accept="image/*" />
+        <button onclick="sendMessage()">Send</button>
+        <div id="imagePreview"></div>
+        <div id="response">Response will appear here...</div>
+    </div>
+
+    <script>
+        let currentImageUrl = null;
+
+        document.getElementById('imageInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Show preview
+                const preview = document.getElementById('imagePreview');
+                const img = document.createElement('img');
+                img.classList.add('preview-image');
+                img.file = file;
+                preview.innerHTML = '';
+                preview.appendChild(img);
+
+                // Read and preview the image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                // Upload the image
+                try {
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    const response = await fetch('http://localhost:3002/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        currentImageUrl = data.fileUrl;
+                        console.log('Image uploaded:', currentImageUrl);
+                    } else {
+                        throw new Error(data.error || 'Upload failed');
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    preview.innerHTML = `<span class="error">Upload failed: ${error.message}</span>`;
+                }
+            }
+        });
+
+        async function sendMessage() {
+            const userInput = document.getElementById("userInput").value;
+            const responseElement = document.getElementById("response");
+            
+            if (!userInput.trim()) {
+                responseElement.innerHTML = '<span class="error">Please enter a message</span>';
+                return;
+            }
+
+            responseElement.innerHTML = '<span class="loading">Loading...</span>';
+
+            try {
+                // Construct the message content
+                let content = userInput;
+                if (currentImageUrl) {
+                    content += `\n[Image URL: ${currentImageUrl}]`;
+                }
+
+                const response = await fetch("http://localhost:3002/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llava-v1.5-7b",
+                        messages: [{
+                            role: "user",
+                            content: content
+                        }],
+                        max_tokens: 1000,
+                        temperature: 0.7
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Full response:", data);
+                
+                responseElement.innerText = data.choices[0].message.content;
+
+                // Clear the image after sending
+                currentImageUrl = null;
+                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('imageInput').value = '';
+            } catch (error) {
+                console.error("Error details:", error);
+                responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        // Add event listener for Enter key
+        document.getElementById("userInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
