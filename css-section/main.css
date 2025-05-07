@@ -1,0 +1,19 @@
+body{
+    background: linear-gradient(110deg, #2e919ad7 5%, #e7890e 100%);
+}
+h1{
+    text-align: center;
+    text-underline-offset: black;
+}
+h2{
+    text-align: right;
+}
+:root{
+    --font-size: 20px;
+}
+.test{
+    font-size: var(--font-size)
+}
+form{
+    text-align: right;
+}
