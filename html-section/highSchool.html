@@ -2,10 +2,79 @@
 <html>
     <body>
         <title>
-            High School Page - Home 
+            High School - Home 
         </title>
         <head>
-            <link href="../css/highSchool.css" rel = "stylesheet" type = "text/css">
+            <link href="../css-section/highSchool.css" rel = "stylesheet" type = "text/css">
         </head>
+        <h1>
+            High School Section
+        </h1>
+        <h2>
+            <p>
+                Welcome! Below, you'll find my high school projects, as well as some of my past awards/achievements. 
+            </p>
+        </h2>
+        <h3>
+            Projects: 
+            <li>
+                Western Mathematics Exposition Competition (Dec 2022-Feb 2023)
+                <p>
+                    This was a competition hosted by Western University, where groups of 2-3 and a mentor spent ~4 months designing an informative poster about an important concept in Mathematics. 
+                    Alongside a teammate, and with the guidance of a mentor, I researched, designed, and developed a stunning poster showcasing the concept of Limits and their Applications in other fields of Mathematics. 
+                    Feel free to right-click on the image and view the image in another tab for a better view!
+                    <img src="../images/uwo project.jpg" alt="Western Mathematics Exposition Poster" class="project-image-right"> 
+                </p>
+            </li>
+            <li>
+                Research Paper (Feb 2023-August 2023)
+                <p>
+                    Conducted via the ICASSSD (International Center for Applied Systems Science for Sustainable Development) research school, me and several other researchers were assigned a mentor to develop an innovative solution using Artificial Intelligence (AI) in healthcare.
+                    Along with the guidance of the mentor, we ultimately decided to develop a 3-minute warning system for patients with Ventricular Tachycardia. 
+                    While it was definately a new experience (learning to analyze a research paper and how to parse through multiple papers in a limited timeframe), it was very rewarding. 
+                    You can read the full research paper <a href="../documents/ICASSSD Research Paper.pdf">here!</a>
+                </p>
+            </li>
+        </h3>
+        <h4>
+            Awards: 
+            <li>
+                UCMAS Mental Math School Competitions (2015-2020)
+                <p>
+                    I have participated in centre-wide, national, and international competitions and have earned a champion trophy at the centre level, multiple 2nd runner-up titles across Canada, and a 5th runner-up award internationally. I've attached a photo showcasing all of my awards,
+                    see bottom-right of the page.
+                    <img src="../images/SIN.jpg" alt="SIN Contest" class="project-image-right stack-below-right-float">
+                </p>
+            </li>
+            <li>
+                Sir Isaac Newton Physics Contest (2023)
+                <p>
+                    This was an international competition hosted by the University of Waterloo, where I had to think outside the box and solve challenging physics problems. 
+                    While the problems were tricky (some of the content was beyond what I learned at the time), through critically thinking and breaking down each problem into smaller steps, I managed to secure a certificate of distinction, which is awarded to contestants who are in the Top 25% in the world!
+                    A picture of my certificate is to the right. 
+                    <img src="../images/ucmas.jpeg" alt="UCMAS Awards" class="project-image-right stack-below-right-float">
+                </p>
+            </li>
+            <li>
+                Schulich Leader Scholarship Nomination
+                <p>
+                    One of the most prestigious scholarships in all of Canada, with only 100 scholarships given per year, I was nominated (on behalf of my entire school) for this prestigious award.
+                </p>
+            </li>
+        </h4>
+        <h5>
+            To view my coding-based projects, please see <a href="../html-section/codingProjects.html">Coding-Based Projects</a>
+        </h5>
+
+        <div id="funFactSection" style="text-align: center; margin-top: 40px; margin-bottom: 20px; visibility: hidden;">
+            <h3 class="matrix-text">Did You Know?</h3>
+            <p id="funFactText" class="matrix-text" style="font-style: italic;"></p>
+        </div>
+        <script src="../js/fun-facts.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                if (typeof displayFunFactStaticallyOnPage === "function") displayFunFactStaticallyOnPage();
+            });
+        </script>
     </body>
 </html>

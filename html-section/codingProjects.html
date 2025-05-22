@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="../css-section/codingProjects.css" rel="stylesheet" type="text/css">
+        <title>
+            Coding-Based Projects - Home
+        </title>
+    </head>
+    <body>
+        <h1>
+            Coding-Based Projects
+        </h1>
+        <h2>
+            Throughout my high school career and my university journey (thus far), I've developed several code-based projects in languages including Python, Java, HTML, CSS, and MATLAB!
+            For the purposes of this site, I'll be showing my Python-based and Java-based projects. In addition, I'll be adding links where you can download the source code for some of my MATLAB projects.
+            Also, feel free to see the source code for the Curve-Fitting Application on my Github!
+        </h2>
+        <h3>
+            <p>
+                Python-based projects:
+                <li>
+                    Curve-Fitting Application
+                    <p>
+                        Designed with various Python libraries, including Streamlit (for the main app interface), NumPy, Pandas, and Matplotlib, 
+                        this app incorporates many different functions in one! This app can either take hand-inputted X, Y, and Z values, or it can read a CSV file and calculate several different types of curve fitting. 
+                        It can do both 2D AND 3D Curve Fitting! Link is <a href= "https://fitting-data-app-ss.streamlit.app">here!</a>
+                        <p>
+                            <em>NOTE:</em> After a bit, the app goes to sleep. If you do encounter this, please click on the button shown on the screen and wait for a few moments.
+                        </p>
+                    </p>
+                </li>
+            </p>
+            <p>
+                Java-based projects: 
+                <li>
+                    Tic-Tac-Toe
+                    <p>
+                        Designed to be a GUI (Graphical User Interface) app (pops up in a separate window, not just in the terminal/console), I designed this version of Tic-Tac-Toe to be where two players (not vs. the computer) enter their names and battle out in
+                        a classic game of Tic-Tac-Toe! There is also the added functionality to restart the game. Link to download all necessary files to run this are on my Github <a href="https://github.com/Soham-Sasan-Codes-Wonders/Tic-Tac-Toe">respository.</a>
+                        <p>
+                            <em><u>NOTE:</u> As of yet, I have not added the ability to run Tic-Tac-Toe within this page itself. However, I do plan to add this in the future.. stay tuned!</em> 
+                        </p>
+                        
+                    </p>
+                </li>
+            </p>
+            <p>
+                Links to MATLAB projects:
+                <li>
+                    Converting Cartesian Coordinates to Polar Coordinates: <a href="https://github.com/Soham-Sasan-Codes-Wonders/MATLAB-projects/blob/main/cartesian_to_polar.m">Script Here!</a>
+                </li>
+                <li>
+                    My own version to calculate the Transpose of a Matrix and comparing to builtin MATLAB method: <a href="https://github.com/Soham-Sasan-Codes-Wonders/MATLAB-projects/blob/main/my_transpose.m">Function</a> and <a href="https://github.com/Soham-Sasan-Codes-Wonders/MATLAB-projects/blob/main/my_transpose_tests.m">Function Tests</a>
+                </li>
+                <li>
+                    My own version to calculate the Cholesky Decomposition of a Matrix and comparing to builtin MATLAB method: <a href="https://github.com/Soham-Sasan-Codes-Wonders/MATLAB-projects/blob/main/my_chol_script.m">Script Here!</a>
+                </li>
+            </p>
+        </h3>
+
+        <div id="funFactSection" style="text-align: center; margin-top: 40px; margin-bottom: 20px; visibility: hidden;">
+            <h3 class="matrix-text">Did You Know?</h3>
+            <p id="funFactText" class="matrix-text" style="font-style: italic;"></p>
+        </div>
+        <script src="../js/fun-facts.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                if (typeof displayFunFactStaticallyOnPage === "function") displayFunFactStaticallyOnPage();
+            });
+        </script>
+    </body>
+</html>

@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Llama Chat - Home</title>
+    <link rel="icon" type="image/png" href="../favicons/meta.png">
     <style>
         #chat-interface {
             margin: 20px;
@@ -9,7 +10,8 @@
             border: 1px solid #ccc;
         }
         #response {
-            margin-top: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
             white-space: pre-wrap;
         }
         .error {
@@ -19,55 +21,110 @@
             color: gray;
             font-style: italic;
         }
+        #chatLog div {
+            margin-bottom: 10px;
+        }
+        #inputSection {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        #chatLog {
+            max-height: 400px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
+    <div style="margin: 20px; margin-bottom: 0;">
+        <a href="../html-section/llms.html">&larr; Back to Models List</a> | 
+        <a href="../html-section/main.html">Home</a>
+    </div>
     <div id="chat-interface">
-        <input type="text" id="userInput" placeholder="Ask me something..." />
-        <button onclick="sendMessage()">Send</button>
         <div id="response">Response will appear here...</div>
+
+        <div id="chatLog" style="margin-bottom: 10px;"></div>
+
+        <div id="inputSection">
+            <input type="text" id="userInput" placeholder="Ask me something..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
+    <div style="margin: 20px;">
+        <button onclick="clearHistory()">Clear History</button>
+    </div>
 
     <script>
+        let messages = [];
 
-    async function sendMessage() {
-        const userInput = document.getElementById("userInput").value;
-        const responseElement = document.getElementById("response");
-        
-        responseElement.innerHTML = '<span class="loading">Loading...</span>';
-    
-        try {
-            const response = await fetch("http://172.16.12.2:1234/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.2-3b-instruct",
-                    messages: [{
-                        role: "user",
-                        content: userInput
-                    }],
-                    max_tokens: 5000,
-                    temperature: 0.7
-                })
+        function updateChatLog() {
+            const chatLog = document.getElementById("chatLog");
+            chatLog.innerHTML = "";
+            messages.forEach((msg) => {
+                const msgElem = document.createElement("div");
+                msgElem.textContent = `${msg.role === "user" ? "You" : "Assistant"}: ${msg.content}`;
+                chatLog.appendChild(msgElem);
             });
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-            const data = await response.json();
-            console.log("Full response:", data);
-            
-            responseElement.innerText = data.choices[0].message.content;
-        } catch (error) {
-            console.error("Error details:", error);
-            responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            document.getElementById("response").innerText = "Response will appear here...";
+            chatLog.scrollTop = chatLog.scrollHeight;
         }
-    }
-        
+
+        function clearHistory() {
+            messages = [];
+            document.getElementById("chatLog").innerHTML = "";
+            document.getElementById("response").innerText = "Response will appear here...";
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById("userInput").value;
+            const responseElement = document.getElementById("response");
+
+            responseElement.innerHTML = '<span class="loading">Loading...</span>';
+            document.getElementById("userInput").disabled = true;
+
+            messages.push({ role: "user", content: userInput });
+            updateChatLog();
+
+            try {
+                const response = await fetch("https://main-wealthy-mammal.ngrok-free.app/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer lm-studio"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.2-1b-instruct",
+                        messages: messages,
+                        max_tokens: 50000,
+                        temperature: 1.0
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Full response:", data);
+
+                messages.push({ role: "assistant", content: data.choices[0].message.content });
+                updateChatLog();
+            } catch (error) {
+                console.error("Error details:", error);
+                responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            } finally {
+                document.getElementById("userInput").disabled = false;
+                document.getElementById("userInput").value = "";
+                document.getElementById("userInput").focus();
+            }
+        }
+
+        document.getElementById("userInput").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
     </script>
 </body>
 </html>

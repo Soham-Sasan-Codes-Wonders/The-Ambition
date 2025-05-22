@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Gemma 2 Chat - Home</title>
-    <link rel="icon" type="image/png" href="../favicons/gemma2.png">
+    <title>Mathstral Chat - Home</title>
+    <link rel="icon" type="image/png" href="../favicons/mistral.png">
     <style>
         #chat-interface {
             margin: 20px;
@@ -40,12 +40,14 @@
         <a href="../html-section/llms.html">&larr; Back to Models List</a> | 
         <a href="../html-section/main.html">Home</a>
     </div>
+
     <div id="chat-interface">
         <div id="response">Response will appear here...</div>
         
         <div id="chatLog" style="margin-bottom: 10px;"></div>
         <div id="inputSection">
-            <input type="text" id="userInput" placeholder="Ask me something..." />
+            <label for="userInput" class="visually-hidden">Your message:</label> 
+            <input type="text" id="userInput" placeholder="Ask Mathstral something..." />
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
@@ -93,7 +95,7 @@
                     "Authorization": "Bearer lm-studio"
                 },
                 body: JSON.stringify({
-                    model: "gemma-2-27b-it",
+                    model: "mathstral-7b-v0.1",
                     messages: messages,
                     max_tokens: 50000,
                     temperature: 1.0

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="../css-section/llms.css" rel="stylesheet" type="text/css">
+        <title>
+            LLM Section - Home
+        </title>
+    </head>
+    <body>
+        <h1>
+            LLM Chatbots
+        </h1>
+        <h2>
+            In this part of my website, I experiment with implementing <em>locally run</em> Large Language Models (LLM's).
+            All models were downloaded locally on my computer, and <u>for the time being</u> are being run through my computer.
+            While I am listing several different types of models below, due to limited computing power, I can only run a few small models
+            at a time. I am trying to get these models on a locally hosted data server sometime in the near future.. stay tuned!
+
+            <p>
+                <em><u>NOTE:</u></em> These models are pretty finicky and will probably hallucinate information at times, so please use with caution. They also take some time to generate responses (more explained in Technical Notes below), so please be patient.
+            </p>
+
+            <p>
+                Models List (lowest parameters to highest parameters): 
+                <li>
+                    <a href="../html-section/llama-3.2.html">Llama 3.2 Instruct</a> (1B parameters). Text only.
+                </li>
+                <li>
+                    <a href="../html-section/mathstral.html">Mathstral v0.1</a> (7B parameters). Text only.
+                </li>
+                <li>
+                    <a href="../html-section/deepseekR1.html">Deepseek R1</a>, distilled into Qwen (7B parameters). Text only. 
+                </li>
+                <li>
+                    <a href="../html-section/LLaVA.html">LLaVA v1.5</a> (7B parameters). Text and Image only.
+                </li>
+                <li>
+                    <a href="../html-section/gemma-27b.html">Gemma 2 Instruct</a> (27B parameters). Text only.
+                </li>
+                <li>
+                    <a href="../html-section/gemma3.html">Gemma 3 Instruct</a> (27B parameters). Text and Image only.
+                </li>
+                <li>
+                    <a href="../html-section/c4ai.html">C4ai Command R v01</a> (35B parameters). Text only.
+                </li>
+            </p>
+        </h2>
+        <h3 style="text-align: center;"> 
+            <em>Technical Notes:</em>
+        </h3>
+        <ul style="margin-left: auto; margin-right: auto; width: fit-content; text-align: left; font-size: 18px;"> 
+            <li>
+                Each of the models listed above (with the exception of Cohere's Command R at 0.5), have a temperature of 1 (temperature is how much randomness in the responses, with 1 being the most).
+                Thus, asking a long query may result in a slower, but more unique answer, due to this temperature setting.
+            </li>
+            <li>
+                For Deepseek R1, When thinking, Deepseek R1 produces "&lt; think &gt; &lt; /think &gt;" tags. This is perfectly normal; the model is simply reasoning about your prompt.
+                Similarly, Command R sometimes produces " &lt; EOS Token &gt; ". This is also normal.
+            </li>
+            <li>
+                For vision-enabled models (LLaVA v1.5 & Gemma 3 Instruct), <u>no images are stored whatsoever</u>. Based on my code,
+                JavaScript converts your image/file into base64 string in memory, which is then sent to my LLM host service, and once the message is sent, the image preview is cleared, and the base64 string is removed from memory.
+                So, nothing is saved to my disk. (Simple terms, everything happens in RAM and is deleted once the message is processed).
+            </li>
+            <li>
+                As mentioned previously, I have limited computing power at the moment, so for the time being I will only be running Llama 3.2 1B and/or LLaVA v1.5. Apologies for the inconvenience!
+            </li>
+        </ul>
+
+        <div id="funFactSection" style="text-align: center; margin-top: 40px; margin-bottom: 20px; visibility: hidden;">
+            <h3 class="matrix-text">Did You Know?</h3>
+            <p id="funFactText" class="matrix-text" style="font-style: italic;"></p>
+        </div>
+        <script src="../js/fun-facts.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                if (typeof displayFunFactStaticallyOnPage === "function") displayFunFactStaticallyOnPage();
+            });
+        </script>
+    </body>
+</html>

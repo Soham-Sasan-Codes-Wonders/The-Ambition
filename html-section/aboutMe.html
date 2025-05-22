@@ -1,28 +1,75 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link href="../css/aboutMe.css" rel="stylesheet" type="text/css">
+        <link href="../css-section/aboutMe.css" rel="stylesheet" type="text/css">
+        <link rel="icon" type="image/png" href="../favicons/aboutMe.png">
         <title>
             About Me - Home
         </title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
+        <canvas id="particle-canvas"></canvas>
         <h1>
             About Me Page
         </h1>
+        <img src="../images/IMG_0628.jpeg" alt="Soham Sasan" class="profile-picture">
         <h2>
-            Hello! Thanks for stopping by! Below you will find my socials (including LinkedIn, Twitter, GitHub, Instagram).
-            <p>
-                You can also find my resume down below as well!
-            </p>
+            Hello! I'm Soham Sasan, a 19 year old who's passionate to experiment and push boundaries using technology!
+            I'm currently in my 2nd year of Nanotechnology Engineering at the University of Waterloo. 
+
+            
         </h2>
+            <p>
+                In my free time, I enjoy activities including gardening, reading about finance, poltics, history (essentially whatever catches my eye!), and experimenting with new tech (like AI!)
+            </p>
+            <p>
+                Below, you'll find all my social handles, including my LinkedIn, Twitter, GitHub, and Instagram profiles, as well as my resume (in both PDF and .docx formats)
+            </p>
+            <p>
+                Feel free to connect; I'd love to chat!
+            </p>
+        <div style="clear: both;"></div> 
         <h3>
             Socials: 
-            <iframe src='https://widgets.sociablekit.com/linkedin-profile-posts/iframe/25532886' frameborder='0' width='100%' height='300'></iframe>
-            <iframe src='https://widgets.sociablekit.com/instagram-feed/iframe/25532897' frameborder='0' width='300px' height='300%'></iframe>
+            <p>
+                Connect with me on:
+                <a href="https://www.linkedin.com/in/soham-sasan-42988932a/" target="_blank" rel="noopener noreferrer">LinkedIn</a> |
+                <a href="https://x.com/Sasan_Soham2" target="_blank" rel="noopener noreferrer">Twitter</a> |
+                <a href="https://github.com/Soham-Sasan-Codes-Wonders" target="_blank" rel="noopener noreferrer">GitHub</a> |
+                <a href="https://www.instagram.com/techgamer3042/?next=%2F" target="_blank" rel="noopener noreferrer">Instagram</a>
+            </p>
         </h3>
         <h4>
-
+            My Resume (both PDF and .docx formats):
+            <p>
+                <a href="../documents/Soham's Resume.pdf" target="_blank" rel="noopener noreferrer" download="Soham's Resume.pdf">Download PDF Version</a> |
+                <a href="../documents/Soham's Resume.docx" target="_blank" rel="noopener noreferrer" download="Soham's Resume.docx">Download .docx Version</a>
+            </p>
         </h4>
+        <div class="stock-market-section">
+            <h5>
+                Market Snapshot (the symbols written (DIA, SPY, QQQ) are ETF's which track these indices). Scroll down to see Dow Jones (DIA), S&P 500 (SPY) and NASDAQ 100 (QQQ).
+                There will be a slight delay to load all the data, to ensure that my API key is not overused!
+                <div id="funFactSection" style="text-align: center; margin-top: 40px; margin-bottom: 20px; visibility: hidden;">
+                    <h3 class="matrix-text">Did You Know?</h3>
+                    <p id="funFactText" class="matrix-text" style="font-style: italic;"></p>
+                </div>
+            </h5>
+            <div id="stock-market-data-content">
+                <canvas id="marketChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+
+        <script src="../js/particles.js" defer></script>
+        <script src="../js/stock-data.js" defer></script>
+        <script src="../js/fun-facts.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                if (typeof displayFunFactStaticallyOnPage === "function") {
+                    displayFunFactStaticallyOnPage();
+                }
+            });
+        </script>
     </body>
 </html>

@@ -1,15 +1,50 @@
 <!DOCTYPE html>
 <html>
-    <body>
+    <head>
         <title>
             Home - Tic Tac Toe
         </title>
-        <head>
-            <link href="../css/tictactoe.css" rel="stylesheet" type="text/css">
-        </head>
+        <link href="../css-section/tictactoe.css" rel="stylesheet" type="text/css">
+        <style>
+            #java-code-container {
+                background-color: #f4f4f4;
+                border: 1px solid #ddd;
+                padding: 15px;
+                overflow-x: auto; 
+                white-space: pre; 
+            }
+            #java-code-container code {
+                font-family: monospace;
+                font-size: 0.9em;
+            }
+        </style>
+    </head>
+    <body>
         <h1>
             Tic-Tac-Toe Game!
         </h1>
-        <script src = "../java/TicTacToeCode.java"></script>
+        <h2>Java Source Code:</h2>
+        <div id="java-code-container">
+            <p>Loading Java code...</p>
+        </div>
+
+        <script>
+            async function displayJavaCode() {
+                const codeContainer = document.getElementById('java-code-container');
+                try {
+                    const response = await fetch('../java-section/TicTacToeCode.java');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status} while fetching code.`);
+                    }
+                    const codeText = await response.text();
+                    const escapedCodeText = codeText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    codeContainer.innerHTML = `<code>${escapedCodeText}</code>`;
+                } catch (error) {
+                    console.error('Failed to load Java code:', error);
+                    codeContainer.innerHTML = `<p style="color: red;">Error loading Java code. Check console for details. Path: ../java-section/TicTacToeCode.java</p>`;
+                }
+            }
+            document.addEventListener('DOMContentLoaded', displayJavaCode);
+        </script>
     </body>
 </html>

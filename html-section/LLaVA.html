@@ -2,13 +2,74 @@
 <html>
 <head>
     <title>LLaVA Chat - Home</title>
+    <link rel="icon" type="image/png" href="../favicons/llava.png">
     <style>
         #chat-interface {
-            margin: 20px;
+            margin: 20px auto;
             padding: 20px;
             border: 1px solid #ccc;
+            max-width: 600px;
+            background-color: #fff;
         }
         #response {
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+            min-height: 20px;
+            color: #333;
+        }
+        #chatLog {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+        }
+        #inputSection {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #userInput {
+            flex: 1;
+            padding: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        #imageInput {
+            flex-shrink: 0;
+        }
+        #imagePreview {
+            margin: 10px 0;
+            text-align: center;
+        }
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
+            display: inline-block;
+        }
+        #controls {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .message-user {
+            color: #1a73e8;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .message-assistant {
+            color: #333;
             margin-top: 10px;
             white-space: pre-wrap;
         }
@@ -19,32 +80,34 @@
             color: gray;
             font-style: italic;
         }
-        .preview-image {
-            max-width: 200px;
-            max-height: 200px;
-            margin: 10px 0;
-        }
-        #imagePreview {
-            margin: 10px 0;
-        }
     </style>
 </head>
 <body>
+    <div style="margin: 20px; margin-bottom: 0;">
+        <a href="../html-section/llms.html">&larr; Back to Models List</a> | 
+        <a href="../html-section/main.html">Home</a>
+    </div>
     <div id="chat-interface">
-        <input type="text" id="userInput" placeholder="Ask me something..." />
-        <input type="file" id="imageInput" accept="image/*" />
-        <button onclick="sendMessage()">Send</button>
+        <div id="response"></div>
+        <div id="chatLog"></div>
+        <div id="inputSection">
+            <input type="text" id="userInput" placeholder="Ask me something..." autocomplete="off" />
+            <input type="file" id="imageInput" accept="image/*" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
         <div id="imagePreview"></div>
-        <div id="response">Response will appear here...</div>
+    </div>
+    <div id="controls">
+        <button onclick="clearHistory()">Clear History</button>
     </div>
 
     <script>
-        let currentImageUrl = null;
+        let base64Image = null;
+        let messages = [];
 
         document.getElementById('imageInput').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (file) {
-                // Show preview
                 const preview = document.getElementById('imagePreview');
                 const img = document.createElement('img');
                 img.classList.add('preview-image');
@@ -52,68 +115,86 @@
                 preview.innerHTML = '';
                 preview.appendChild(img);
 
-                // Read and preview the image
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     img.src = e.target.result;
+                    base64Image = e.target.result;
                 };
                 reader.readAsDataURL(file);
-
-                // Upload the image
-                try {
-                    const formData = new FormData();
-                    formData.append('image', file);
-
-                    const response = await fetch('http://localhost:3002/upload', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const data = await response.json();
-                    if (data.success) {
-                        currentImageUrl = data.fileUrl;
-                        console.log('Image uploaded:', currentImageUrl);
-                    } else {
-                        throw new Error(data.error || 'Upload failed');
-                    }
-                } catch (error) {
-                    console.error('Upload error:', error);
-                    preview.innerHTML = `<span class="error">Upload failed: ${error.message}</span>`;
-                }
+            } else {
+                base64Image = null;
+                document.getElementById('imagePreview').innerHTML = '';
             }
         });
 
+        function updateChatLog() {
+            const chatLog = document.getElementById('chatLog');
+            chatLog.innerHTML = '';
+            messages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                if (msg.role === 'user') {
+                    msgDiv.classList.add('message-user');
+                    if (Array.isArray(msg.content)) {
+                        let textPart = msg.content.find(c => c.type === 'text');
+                        msgDiv.textContent = `User: ${textPart ? textPart.text : ''}`;
+                        const imagePart = msg.content.find(c => c.type === 'image_url');
+                        if (imagePart) {
+                            const img = document.createElement('img');
+                            img.src = imagePart.image_url.url;
+                            img.classList.add('preview-image');
+                            msgDiv.appendChild(document.createElement('br'));
+                            msgDiv.appendChild(img);
+                        }
+                    } else {
+                        msgDiv.textContent = `User: ${msg.content}`;
+                    }
+                } else if (msg.role === 'assistant') {
+                    msgDiv.classList.add('message-assistant');
+                    msgDiv.textContent = `Assistant: ${msg.content}`;
+                }
+                chatLog.appendChild(msgDiv);
+            });
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
         async function sendMessage() {
-            const userInput = document.getElementById("userInput").value;
-            const responseElement = document.getElementById("response");
-            
-            if (!userInput.trim()) {
-                responseElement.innerHTML = '<span class="error">Please enter a message</span>';
+            const userInputElem = document.getElementById("userInput");
+            const userInput = userInputElem.value.trim();
+
+            if (!userInput) {
+                alert('Please enter a message');
                 return;
             }
 
-            responseElement.innerHTML = '<span class="loading">Loading...</span>';
+            userInputElem.disabled = true;
+            document.querySelector('#inputSection button').disabled = true;
+
+            let content;
+            if (base64Image) {
+                content = [
+                    { type: "text", text: userInput },
+                    { type: "image_url", image_url: { url: base64Image } }
+                ];
+            } else {
+                content = [
+                    { type: "text", text: userInput }
+                ];
+            }
+
+            messages.push({role: 'user', content: content});
+            updateChatLog();
 
             try {
-                // Construct the message content
-                let content = userInput;
-                if (currentImageUrl) {
-                    content += `\n[Image URL: ${currentImageUrl}]`;
-                }
-
-                const response = await fetch("http://localhost:3002/v1/chat/completions", {
+                const response = await fetch("https://main-wealthy-mammal.ngrok-free.app/v1/chat/completions", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
                         model: "llava-v1.5-7b",
-                        messages: [{
-                            role: "user",
-                            content: content
-                        }],
-                        max_tokens: 1000,
-                        temperature: 0.7
+                        messages: messages,
+                        max_tokens: 50000,
+                        temperature: 1.0
                     })
                 });
 
@@ -123,20 +204,39 @@
 
                 const data = await response.json();
                 console.log("Full response:", data);
-                
-                responseElement.innerText = data.choices[0].message.content;
 
-                // Clear the image after sending
-                currentImageUrl = null;
+                const assistantMessage = data.choices[0].message.content;
+                messages.push({role: 'assistant', content: assistantMessage});
+                updateChatLog();
+
+                userInputElem.value = '';
+                base64Image = null;
                 document.getElementById('imagePreview').innerHTML = '';
                 document.getElementById('imageInput').value = '';
             } catch (error) {
                 console.error("Error details:", error);
-                responseElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                messages.push({role: 'assistant', content: `Error: ${error.message}`});
+                updateChatLog();
+            } finally {
+                userInputElem.disabled = false;
+                document.querySelector('#inputSection button').disabled = false;
+                userInputElem.focus();
             }
         }
 
-        // Add event listener for Enter key
+        function clearHistory() {
+            messages = [];
+            updateChatLog();
+            base64Image = null;
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('imageInput').value = '';
+            const userInputElem = document.getElementById("userInput");
+            userInputElem.value = '';
+            userInputElem.disabled = false;
+            document.querySelector('#inputSection button').disabled = false;
+            userInputElem.focus();
+        }
+
         document.getElementById("userInput").addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 sendMessage();

@@ -1,119 +1,549 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="The Ambition - Soham Sasan's personal website showcasing projects including locally run LLMs.">
         <link href = "../css-section/main.css" rel = "stylesheet" type = "text/css">
-        <title>
-            Home - Main Website
-        </title>
+        <title>Home - The Ambition</title>
+        <link rel="icon" type="image/png" href="../favicons/matrix.png">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     </head>
     <body>
-        <!-- <a href="file:///Users/sohamsasan/Desktop/GitHub/Website Test/html/vsc.html">*BETA* Back To Main</a> -->
-         <script type="text/javascript">
-            alert("Please be sure to enter your name at the bottom of the screen for a more personalized experience!");
-         </script>
-        <h1>
-            <u>Projekt Website (macOS version)</u> 
+        <button id="modeToggle">Light Mode</button>
+        <button id="skipAnimationBtn" class="matrix-text" style="display: none;">Skip Animation</button>
+        <canvas id="matrixCanvas" aria-hidden="true"></canvas>
+        <h1 id="title" class="matrix-text">
+            
         </h1>
-        <h2>
-            Written By Soham Sasan (on 2025/03/10)
+        <h2 id="writtenBy" class="matrix-text">
+
         </h2>
-        <h3 id="userMessage">
-            
+        <h3>
+            <span id="personalizedGreeting"> </span>
         </h3>
-        <h4>
-            
-            <li>
-                High School Website (beta) (lists achievements, involvment, etc.)
-                <a href="../html-section/highSchool.html">High School Website</a>
-                <li>
-                    About Me (beta) (Check out my socials, including my LinkedIn, Resume, and GitHub!)
-                    <a href="../html-section/aboutMe.html">About Me!</a>
-                </li>
-                <li>
-                    LLM Website (beta) (Test and play around with LOCALLY RUN LLM's! Be rest assured that no data is being stored.) 
-                    <p>
-                        Current LLM's you can try:
-                        <p>
-                            <a href="../html-section/llama-3.2.html">Llama 3.2 (3B-instruct) (Text-Only)</a>
-                        </p>
-                        <p>
-                            <a href="../html-section/mistral-7b.html">Mistral 7B (instruct-v0.3) (Text-Only)</a>
-                        </p>
-                        <p>
-                            <a href="../html-section/LLaVA.html">LLaVA-v1.5-7b (Text/Image)</a>
-                        </p>
-                        <p>
-                            <a href="../html-section/gemma-27b.html">Gemma 27B (Text-Only)</a>
-                        </p>
-                        <p>
-                            <a href="../html-section/gemma3.html">Gemma 3 4B (Text/Image)</a>
-                        </p>
-                    </p>
-                </li>
-                <li>
-                    Tic-Tac-Toe (beta) (Compete against the computer in a 1 vs. 1 Tic-Tac-Toe game! Can YOU beat the computer?)
-                    <p>
-                        <a href="../html-section/tictactoe.html">Tic-Tac-Toe</a>
-                    </p>
-                </li>
-                <li>
-                    Curve-Fitting App (beta) (Designed with Python & Streamlit, this lightweight application will curve fit any data you give it.)
-                    <p>
-                        <a href="https://fitting-data-app-ss.streamlit.app/">Curve-Fitting App</a>
-                    </p>
-                </li>
-            </li>
-        </h4>
-        <h5>
-            <p>
-                <a href="../java/TicTacToeCode.java">*BROKEN* Launch Java</a>
-            </p>
-        </h5>
+        <p id="sectionsIntro" class="matrix-text"></p>
+        <ol id="sectionsOfSite">
+            <li><a href="../html-section/aboutMe.html" rel="noopener noreferrer">About Me Section</a></li>
+            <li><a href="../html-section/highSchool.html" rel="noopener noreferrer">High School Section</a></li>
+            <li><a href="../html-section/llms.html" rel="noopener noreferrer">LLM Section</a></li>
+        </ol>
+        <div id="funFactSection" style="text-align: center; margin-top: 40px; margin-bottom: 20px; visibility: hidden;">
+            <h3 class="matrix-text">Did You Know?</h3>
+            <p id="funFactText" class="matrix-text" style="font-style: italic;"></p>
+        </div>
+
+        <h3 class="matrix-text" style="text-align: center; margin-top: 40px; margin-bottom: 10px;">Global Weather Map</h3>
+        <div id="weatherMapContainer" style="height: 500px; width: 80%; margin: 20px auto; border: 1px solid #555;">
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+              integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <script src="../js/fun-facts.js"></script>
         <script type="text/javascript">
+            var animationSkipped = false; 
+            var storedName = localStorage.getItem("userName");
+            if (!storedName) {
+                var inputName = prompt("Welcome! Please enter your name for a personal touch!");
+                if (inputName && inputName.trim() !== "") {
+                    const div = document.createElement("div");
+                    div.innerText = inputName.trim();
+                    const sanitizedInput = div.innerHTML;
+                    localStorage.setItem("userName", sanitizedInput);
+                    storedName = sanitizedInput;
+                }
+            }
+
+            function matrixEffect(element, finalString, charSet, scrambleCyclesPerChar, charScrambleTime, nextCharDelay, color, callback) {
+                if (animationSkipped) { 
+                    element.textContent = finalString;
+                    if (color) element.style.color = color;
+                    else element.style.color = ''; 
+                    if (callback) callback();
+                    return;
+                }
+
+                if (color) {
+                    element.style.color = color;
+                }
+                let currentDisplayArray = Array(finalString.length).fill(' ');
+                element.textContent = currentDisplayArray.join(''); 
+                let charIndexToReveal = 0; 
+                function revealNextCharacter() {
+                    if (animationSkipped) { 
+                        element.textContent = finalString;
+                        if (callback) callback();
+                        return;
+                    }
+
+                    if (charIndexToReveal >= finalString.length) {
+                        element.textContent = finalString; 
+                        if (callback) callback();
+                        return;
+                    }
+                    let currentScrambleCycle = 0;
+                    const targetChar = finalString[charIndexToReveal];
+                    function scrambleCurrentChar() {
+                        if (currentScrambleCycle < scrambleCyclesPerChar) {
+                            if (animationSkipped) { 
+                                return;
+                            }
+                            currentDisplayArray[charIndexToReveal] = charSet[Math.floor(Math.random() * charSet.length)];
+                            element.textContent = currentDisplayArray.join('');
+                            currentScrambleCycle++;
+                            setTimeout(scrambleCurrentChar, charScrambleTime);
+                        } else {
+                            currentDisplayArray[charIndexToReveal] = targetChar;
+                            element.textContent = currentDisplayArray.join('');
+                            charIndexToReveal++;
+                            setTimeout(revealNextCharacter, nextCharDelay);
+                        }
+                    }
+                    scrambleCurrentChar();
+                }
+                revealNextCharacter();
+            }
             document.addEventListener("DOMContentLoaded", function () {
-                var storedName = localStorage.getItem("userName");
-            
-                if (!storedName) {
-                    var button = document.createElement("button");
-                    button.textContent = "Enter your name";
-                    document.body.appendChild(button);
-            
-                    button.addEventListener("click", function () {
-                        var input = prompt("Enter your name: ");
-                        if (input) {
-                            localStorage.setItem("userName", input);
-                            storedName = input;
-            
-                           
-                            var h3Element = document.getElementById("userMessage");
-                            h3Element.innerHTML = "Hey there, " + storedName + "! Welcome to the main website. The contents of this site include:";
-            
-                           
-                            button.remove();
-            
-                            
-                            showResetButton();
+                const skipAnimationButton = document.getElementById('skipAnimationBtn');
+
+                function applyMode(mode) {
+                    if (mode === 'light') {
+                        bodyElement.classList.add('light-mode');
+                        modeToggleButton.textContent = 'Dark Mode';
+                        if (matrixCanvasElement) matrixCanvasElement.style.display = 'none';
+                    } else {
+                        bodyElement.classList.remove('light-mode');
+                        modeToggleButton.textContent = 'Light Mode';
+                        if (matrixCanvasElement) matrixCanvasElement.style.display = 'block';
+                    }
+                }
+                const modeToggleButton = document.getElementById('modeToggle');
+                const bodyElement = document.body;
+                const matrixCanvasElement = document.getElementById('matrixCanvas');
+                const canvas = document.getElementById('matrixCanvas');
+                let matrixAnimationId = null;
+
+                function setupMatrixRain() {
+                    if (canvas && !matrixAnimationId) { 
+                        const ctx = canvas.getContext('2d');
+                        canvas.width = window.innerWidth;
+                        canvas.height = window.innerHeight;
+                        const codeChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789{}[]()<>/\:;"\',.?!@#$%^&*-+=|~_';
+                        const characters = codeChars;
+                        const fontSize = 14; 
+                        let columns = Math.floor(canvas.width / fontSize); 
+                        let yPillars = [];
+                        function initializePillars() {
+                            yPillars = [];
+                            for (let x = 0; x < columns; x++) {
+                                yPillars[x] = Math.random() * canvas.height; 
+                            }
+                        }
+                        initializePillars();
+
+                        const streamCharCount = 18; 
+
+                        function drawNewRain() {
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.04)'; 
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                            ctx.font = fontSize + 'px monospace';
+
+                            for (let i = 0; i < columns; i++) {
+                                for (let j = 0; j < streamCharCount; j++) {
+                                    const char = characters.charAt(Math.floor(Math.random() * characters.length));
+                                    const yPos = (yPillars[i] - j) * fontSize; 
+
+                                    if (yPos < 0 || yPos > canvas.height) continue; 
+                                    ctx.fillStyle = (j === 0) ? '#90EE90' : '#7FFF00'; 
+                                    
+                                    ctx.fillText(char, i * fontSize, yPos);
+                                }
+                                yPillars[i] += 0.2; 
+                                if (yPillars[i] * fontSize > canvas.height + streamCharCount * fontSize && Math.random() > 0.98) {
+                                    yPillars[i] = 0;
+                                }
+                            }
+                            matrixAnimationId = requestAnimationFrame(drawNewRain);
+                        }
+
+                        drawNewRain(); 
+
+                        window.addEventListener('resize', () => {
+                            canvas.width = window.innerWidth;
+                            canvas.height = window.innerHeight;
+                            columns = Math.floor(canvas.width / fontSize); 
+                            initializePillars(); 
+                        });
+                    }
+                }
+                const savedMode = localStorage.getItem('themeMode');
+                if (savedMode) {
+                    applyMode(savedMode);
+                } else {
+                    applyMode('dark'); 
+                }
+                if (!bodyElement.classList.contains('light-mode')) {
+                    setupMatrixRain();
+                }
+
+                modeToggleButton.addEventListener('click', function() {
+                    const currentMode = bodyElement.classList.contains('light-mode') ? 'light' : 'dark';
+                    const newMode = (currentMode === 'light') ? 'dark' : 'light';
+                    applyMode(newMode);
+                    localStorage.setItem('themeMode', newMode);
+                    if (newMode === 'light' && matrixAnimationId) {
+                        cancelAnimationFrame(matrixAnimationId);
+                        matrixAnimationId = null; 
+                    }
+                    if (newMode === 'dark') {
+                        setupMatrixRain();
+                    }
+                });
+                var personalizedGreetingElement = document.getElementById("personalizedGreeting");
+                var sectionsIntroElement = document.getElementById("sectionsIntro"); 
+                const delayedFooterTextElement = document.getElementById('delayedFooterText');
+                const funFactSectionElement = document.getElementById('funFactSection');
+                const funFactTextElement = document.getElementById('funFactText');
+                function displayFunFactStatically() {
+                    if (!currentFunFact) selectAndStoreFunFact(); 
+                    if (funFactSectionElement) funFactSectionElement.style.visibility = 'visible';
+                    if (funFactTextElement) {
+                        funFactTextElement.textContent = currentFunFact;
+                        if (!funFactTextElement.classList.contains('matrix-text')) {
+                            funFactTextElement.classList.add('matrix-text');
+                        }
+                        funFactTextElement.style.color = ''; 
+                    }
+                }
+                
+                if (sessionStorage.getItem('mainPageAnimated') === 'true') {
+                    console.log("Animations previously completed. Displaying statically.");
+                    document.getElementById('title').textContent = "The Ambition";
+                    document.getElementById('writtenBy').textContent = "Written by: Soham Sasan";
+                    var storedNameStatic = localStorage.getItem("userName"); 
+
+                    if (storedNameStatic) {
+                        personalizedGreetingElement.textContent = "Welcome to \"The Ambition\", " + storedNameStatic + ".";
+                        showResetButton(); 
+                    } else {
+                        personalizedGreetingElement.textContent = "Welcome to \"The Ambition\"!";
+                    }
+                    if (!personalizedGreetingElement.classList.contains('matrix-text')) { 
+                        personalizedGreetingElement.classList.add('matrix-text');
+                    }
+                    document.getElementById('sectionsIntro').textContent = "There are 3 sections of this website. These are: ";
+
+                    const staticListItems = document.querySelectorAll("#sectionsOfSite li");
+                    staticListItems.forEach(li => {
+                        li.style.visibility = 'visible'; 
+                        let targetElement = li.querySelector('a') || li.querySelector('span.list-item-text');
+                        if (targetElement && !targetElement.classList.contains('matrix-text')) {
+                            targetElement.classList.add('matrix-text'); 
                         }
                     });
-                } else {
-                    var h3Element = document.getElementById("userMessage");
-                    h3Element.innerHTML = "Hey there, " + storedName + "! Welcome to the main website. The contents of this site include:";
-                    
-                    
-                    showResetButton();
+                    const resetButtonStatic = document.getElementById('resetNameBtn');
+                    if (delayedFooterTextElement) {
+                        delayedFooterTextElement.style.opacity = 1;
+                        delayedFooterTextElement.style.visibility = 'visible';
+                    }
+                    displayFunFactStatically();
+                    if (skipAnimationButton) skipAnimationButton.style.display = 'none';
+                    return; 
                 }
-            
-                function showResetButton() {
-                    var resetButton = document.createElement("button");
-                    resetButton.textContent = "Reset your name";
-                    document.body.appendChild(resetButton);
-            
-                    resetButton.addEventListener("click", function () {
-                        localStorage.removeItem("userName");
-                        location.reload();
+
+                if (skipAnimationButton) {
+                    skipAnimationButton.style.display = 'inline-block'; 
+                    skipAnimationButton.addEventListener('click', function() {
+                        animationSkipped = true; 
+                        document.getElementById('title').textContent = "The Ambition";
+                        document.getElementById('title').style.color = ''; 
+                        document.getElementById('writtenBy').textContent = "Written by: Soham Sasan"; 
+                        if (storedName) {
+                            personalizedGreetingElement.textContent = "Welcome to \"The Ambition\", " + storedName + ".";
+                            showResetButton();
+                        } else {
+                            personalizedGreetingElement.textContent = "Welcome to \"The Ambition\"!";
+                        }
+                        if (!personalizedGreetingElement.classList.contains('matrix-text')) {
+                            personalizedGreetingElement.classList.add('matrix-text');
+                        }
+                        personalizedGreetingElement.style.color = ''; 
+
+                        sectionsIntroElement.textContent = "There are 3 sections of this website. These are: ";
+
+                        const listItemsToSkip = document.querySelectorAll("#sectionsOfSite li");
+                        listItemsToSkip.forEach(li => {
+                            li.style.visibility = 'visible';
+                            let targetElement = li.querySelector('a') || li.querySelector('span.list-item-text');
+                            if (targetElement && !targetElement.classList.contains('matrix-text')) {
+                                targetElement.classList.add('matrix-text');
+                            }
+                        });
+                        if (delayedFooterTextElement) {
+                            delayedFooterTextElement.style.opacity = 1;
+                            delayedFooterTextElement.style.visibility = 'visible';
+                        }
+                        displayFunFactStatically();
+                        sessionStorage.setItem('mainPageAnimated', 'true');
+                        this.style.display = 'none'; 
                     });
                 }
+
+                function showResetButton() {
+                    if (document.getElementById("resetNameBtn")) {
+                        console.log("showResetButton: Reset button already exists.");
+                        return;
+                    }
+                    console.log("showResetButton: Creating reset button...");
+                    var resetButton = document.createElement("button");
+                    resetButton.id = "resetNameBtn"; 
+                    resetButton.textContent = "Reset your name";
+                    var h3Element = personalizedGreetingElement.parentNode; 
+                    if (h3Element && h3Element.parentNode) {
+                        h3Element.parentNode.insertBefore(resetButton, h3Element);
+                    } else {
+                        console.error("showResetButton: Could not find proper parent for reset button, appending to body. personalizedGreetingElement:", personalizedGreetingElement);
+                        document.body.appendChild(resetButton); 
+                    }
+                    console.log("showResetButton: Reset button created and added.");
+                    resetButton.addEventListener("click", function () {
+                        localStorage.removeItem("userName");
+                        try {
+                            sessionStorage.removeItem('mainPageAnimated'); 
+                        } catch (e) {
+                            console.warn('Could not remove mainPageAnimated from sessionStorage:', e);
+                        }
+                        location.reload();
+                    });
+                } 
+                function startAnimations() {
+                    console.log("startAnimations: Beginning animation sequence.");
+                    animateTitle();
+                }
+                function animateTitle() {
+                    const titleElement = document.getElementById("title");
+                    if (titleElement) {
+                        const textToAnimate = "The Ambition";
+                        matrixEffect(titleElement, textToAnimate,
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3, 40, 60, 
+                            null, 
+                            animateWrittenBy 
+                        );
+                    } else { 
+                        console.error("Element with ID 'title' not found.");
+                        animateWrittenBy(); 
+                    }
+                }
+
+                function animateWrittenBy() {
+                    const writtenByElement = document.getElementById("writtenBy");
+                    if (writtenByElement) {
+                        const textToAnimate = "Written by: Soham Sasan";
+                        matrixEffect(writtenByElement, textToAnimate,
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3, 40, 60, 
+                            null, 
+                            animatePersonalizedGreeting 
+                        );
+                    } else { 
+                        console.error("Element with ID 'writtenBy' not found.");
+                        animatePersonalizedGreeting(); 
+                    }
+                }
+
+                function animatePersonalizedGreeting() {
+                    if (personalizedGreetingElement) {
+                        console.log("animatePersonalizedGreeting: Animating greeting. Stored name:", storedName);
+                        if (!personalizedGreetingElement.classList.contains('matrix-text')) {
+                            personalizedGreetingElement.classList.add('matrix-text');
+                        }
+                        if (storedName) {
+                            const greetingText = "Welcome to \"The Ambition\", " + storedName + ".";
+                            personalizedGreetingElement.textContent = ''; 
+                            matrixEffect(personalizedGreetingElement, greetingText, 
+                                'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*&%$#@!<>?', 
+                                3, 30, 50, 
+                                null, 
+                                function() { 
+                                    console.log("animatePersonalizedGreeting: Callback fired. Showing reset button and animating sections intro.");
+                                    showResetButton();
+                                    animateSectionsIntro(); 
+                                }
+                            );
+                        } else {
+                            personalizedGreetingElement.textContent = "Welcome to \"The Ambition\"!";
+                            if (!personalizedGreetingElement.classList.contains('matrix-text')) {
+                                personalizedGreetingElement.classList.add('matrix-text');
+                            }
+                            animateSectionsIntro(); 
+                        }
+                    } else { 
+                        console.error("Element with ID 'personalizedGreeting' not found.");
+                        animateSectionsIntro(); 
+                    }
+                }
+
+                function animateSectionsIntro() {
+                    if (sectionsIntroElement) {
+                        console.log("animateSectionsIntro: Animating sections intro text.");
+                        var introText = "There are 3 sections of this website. These are: ";
+                        matrixEffect(sectionsIntroElement, introText,
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3, 40, 60, 
+                            null, 
+                            animateListItemsSequentially 
+                        );
+                    } else { 
+                        console.error("Element with ID 'sectionsIntro' not found.");
+                        animateListItemsSequentially(); 
+                    }
+                }
+
+                function animateListItemsSequentially() { 
+                    console.log("animateListItemsSequentially: Starting to animate list items.");
+                    const listItems = document.querySelectorAll("#sectionsOfSite li");
+                    if (listItems.length === 0) {
+                        console.warn("animateListItemsSequentially: No list items found to animate.");
+                        animateFunFact(); 
+                        return;
+                    }
+                    let itemIndex = 0;
+                    function animateNextItem() {
+                        if (itemIndex >= listItems.length) {
+                            console.log("animateListItemsSequentially: All list items animated.");
+                            animateFunFact(); 
+                            return; 
+                        }
+                        const currentLi = listItems[itemIndex];
+                        console.log("animateListItemsSequentially: Animating item " + itemIndex, currentLi);
+                        let targetElementForAnimation = currentLi.querySelector('a') || currentLi.querySelector('span.list-item-text');
+                        if (!targetElementForAnimation) { targetElementForAnimation = currentLi; }
+                        currentLi.style.visibility = 'visible'; 
+                        const originalText = targetElementForAnimation.textContent;
+                        targetElementForAnimation.classList.add('matrix-text'); 
+                        targetElementForAnimation.textContent = ''; 
+                        matrixEffect(targetElementForAnimation, originalText,
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*&%$#@!<>?',
+                            2, 30, 40, null, 
+                            function() { itemIndex++; animateNextItem(); });
+                    }
+                    animateNextItem(); 
+                }
+
+                function animateFunFact() {
+                    console.log("animateFunFact: Animating fun fact.");
+                    if (!currentFunFact) selectAndStoreFunFact(); 
+
+                    if (funFactSectionElement) funFactSectionElement.style.visibility = 'visible';
+
+                    if (funFactTextElement && currentFunFact) {
+                        const funFactTitleElement = funFactSectionElement ? funFactSectionElement.querySelector('h3') : null;
+                        if (funFactTitleElement && !funFactTitleElement.classList.contains('matrix-text')) {
+                            funFactTitleElement.classList.add('matrix-text'); 
+                        }
+
+                        funFactTextElement.textContent = ''; 
+                        if (!funFactTextElement.classList.contains('matrix-text')) {
+                            funFactTextElement.classList.add('matrix-text');
+                        }
+                        matrixEffect(funFactTextElement, currentFunFact,
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*&%$#@!<>?',
+                            2, 25, 35, 
+                            null, 
+                            function() { 
+                                console.log("animateFunFact: Fun fact animation complete.");
+                                sessionStorage.setItem('mainPageAnimated', 'true');
+                                if (skipAnimationButton) skipAnimationButton.style.display = 'none';
+                                if (delayedFooterTextElement) {
+                                    delayedFooterTextElement.style.opacity = 1;
+                                    delayedFooterTextElement.style.visibility = 'visible';
+                                }
+                            }
+                        );
+                    } else {
+                        console.warn("animateFunFact: Fun fact element or text not available, displaying statically.");
+                        displayFunFactStatically();
+                        sessionStorage.setItem('mainPageAnimated', 'true'); 
+                        if (skipAnimationButton) skipAnimationButton.style.display = 'none';
+                        if (delayedFooterTextElement) {
+                            delayedFooterTextElement.style.opacity = 1;
+                            delayedFooterTextElement.style.visibility = 'visible';
+                        }
+                    }
+                }
+                selectAndStoreFunFact(); 
+                startAnimations(); 
             });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const mapContainer = document.getElementById('weatherMapContainer');
+                if (mapContainer && typeof L !== 'undefined') {
+                    console.log("Initializing Weather Map...");
+                    const map = L.map('weatherMapContainer').setView([20, 0], 2); 
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    const tileCache = new Map();
+
+                    function createCachingTileLayer(urlTemplate, options) {
+                        return L.tileLayer(urlTemplate, {
+                            ...options,
+                            fetchTile: function (tile, coord, done) {
+                                const key = `${coord.x}_${coord.y}_${coord.z}`;
+                                if (tileCache.has(key)) {
+                                    tile.src = tileCache.get(key);
+                                    done(null, tile);
+                                } else {
+                                    const url = this.getTileUrl(coord);
+                                    const img = new Image();
+                                    img.crossOrigin = 'anonymous';
+                                    img.onload = () => {
+                                        const canvas = document.createElement('canvas');
+                                        canvas.width = 256;
+                                        canvas.height = 256;
+                                        const ctx = canvas.getContext('2d');
+                                        ctx.drawImage(img, 0, 0);
+                                        const dataURL = canvas.toDataURL('image/png');
+                                        tileCache.set(key, dataURL);
+                                        tile.src = dataURL;
+                                        done(null, tile);
+                                    };
+                                    img.onerror = () => {
+                                        done(new Error(`Failed to load tile ${url}`), tile);
+                                    };
+                                    img.src = url;
+                                }
+                            }
+                        });
+                    }
+
+                    const tempLayer = createCachingTileLayer(
+                        `https://ambition-proxy-server.onrender.com/api/weather-tile?layer=temp_new&z={z}&x={x}&y={y}`, {
+                            attribution: 'Weather data &copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
+                            opacity: 0.7
+                        });
+
+                    const cloudsLayer = createCachingTileLayer(
+                        `https://ambition-proxy-server.onrender.com/api/weather-tile?layer=clouds_new&z={z}&x={x}&y={y}`, {
+                            attribution: 'Weather data &copy; <a href="https://openweathermap.org/">OpenWeatherMap</a>',
+                            opacity: 0.6
+                        });
+
+                    const weatherOverlays = { "Temperature": tempLayer, "Clouds": cloudsLayer };
+                    L.control.layers(null, weatherOverlays, { collapsed: false }).addTo(map);
+                    tempLayer.addTo(map); 
+                } else {
+                    if (!mapContainer) {
+                        console.error("Weather map error: The div with id 'weatherMapContainer' was not found in the DOM.");
+                    }
+                    if (typeof L === 'undefined') {
+                        console.error("Weather map error: Leaflet.js (L) is not loaded or defined. Check the script tag for Leaflet.");
+                    }
+                }
+            });
+
             </script>
     </body>
 </html>
