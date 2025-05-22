@@ -35,8 +35,8 @@ body{
     align-items: center;
     justify-content: center;
     text-align: center;
-    margin-top: 40px;
-    margin-bottom: 20px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     visibility: visible; 
 }
 
@@ -44,4 +44,16 @@ body{
     font-family: 'Courier New', monospace;
     color: black;
     font-size: 1.5em;
+}
+#funFactSection h3.matrix-text {
+    font-family: inherit; 
+    color: inherit;       
+    font-size: 20px;      
+    font-weight: bold;    
+}
+#funFactSection p.matrix-text {
+    font-family: inherit; 
+    color: inherit;      
+    font-size: 20px;      
+    font-weight: bold;    
 }
