@@ -1,12 +1,44 @@
 body{
-    background: linear-gradient(110deg, #2e919ad7 5%, #e7890e 100%);
+    background-color: #000000; 
+    color: #DDDDDD; 
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; 
 }
+
+#matrixCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; 
+    display: block; 
+}
+
+#modeToggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    padding: 8px 12px;
+    background-color: #333; 
+    color: #00FF00;      
+    border: 1px solid #00FF00; 
+    cursor: pointer;
+    z-index: 1000; 
+    font-family: 'Courier New', Courier, monospace;
+}
+
+
 h1{
     text-align: center;
     text-underline-offset: black;
 }
 h2{
     text-align: right;
+}
+h4{
+    text-align: left;
 }
 :root{
     --font-size: 20px;
@@ -16,4 +48,83 @@ h2{
 }
 form{
     text-align: right;
+}
+
+h1, h2, h3, p, ol, #personalizedGreeting {
+    position: relative;
+    z-index: 1;
+}
+#resetNameBtn {
+    margin-top: 10px;
+    padding: 8px 15px;
+    background-color: #333;
+    color: #00FF00;
+    border: 1px solid #00FF00;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+    position: relative; z-index: 1; 
+}
+
+#resetNameBtn:hover {
+    background-color: #00FF00;
+    color: #111;
+}
+.matrix-text {
+    font-family: 'Courier New', Courier, monospace; 
+    color: #00FF00; 
+    white-space: pre; 
+}
+#sectionsOfSite li a.matrix-text,
+#sectionsOfSite li span.list-item-text.matrix-text {
+    text-decoration: underline; 
+}
+#sectionsOfSite li a.matrix-text:hover {
+    color: #FFFF00; 
+}
+#sectionsOfSite li {
+    visibility: hidden;
+}
+
+a {
+    color: #00FFFF; 
+    position: relative; z-index: 1;
+}
+
+body.light-mode {
+    background-color: #f4f4f4; 
+    color: #333333;          
+}
+
+body.light-mode #matrixCanvas {
+    display: none !important; 
+}
+
+body.light-mode .matrix-text {
+    color: #006400; 
+}
+
+body.light-mode h1, 
+body.light-mode h2, 
+body.light-mode h3, 
+body.light-mode p, 
+body.light-mode ol {
+    color: #333333; 
+}
+
+body.light-mode a {
+    color: #0000EE; 
+}
+
+body.light-mode #resetNameBtn {
+    background-color: #e0e0e0;
+    color: #333333;
+    border: 1px solid #aaaaaa;
+}
+body.light-mode #resetNameBtn:hover {
+    background-color: #d0d0d0;
+}
+body.light-mode #modeToggle {
+    background-color: #e0e0e0;
+    color: #333333;
+    border: 1px solid #aaaaaa;
 }

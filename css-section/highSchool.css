@@ -1,0 +1,30 @@
+h1{
+    text-align: center;
+    
+}
+.project-image-right {
+    float: right; 
+    margin-left: 15px; 
+    margin-bottom: 10px; 
+    max-width: 350px; 
+    height: auto; 
+    border: 1px solid #ddd; 
+    padding: 4px; 
+}
+.stack-below-right-float {
+    clear: right; 
+    max-width: 350px;
+}
+
+h3{
+    font-size: 18px;
+}
+h4{
+    font-size: 18px;
+}
+h5{
+    font-size: 18px;
+}
+body{
+    background: linear-gradient(110deg, #98b133d7 40%, #895fec 67%)
+}
