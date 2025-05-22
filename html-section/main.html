@@ -43,14 +43,14 @@
         <script src="../js/fun-facts.js"></script>
         <script type="text/javascript">
             var animationSkipped = false; 
-            var storedName = localStorage.getItem("userName");
+            var storedName = sessionStorage.getItem("sessionUserName");
             if (!storedName) {
                 var inputName = prompt("Welcome! Please enter your name for a personal touch!");
                 if (inputName && inputName.trim() !== "") {
                     const div = document.createElement("div");
                     div.innerText = inputName.trim();
                     const sanitizedInput = div.innerHTML;
-                    localStorage.setItem("userName", sanitizedInput);
+                    sessionStorage.setItem("sessionUserName", sanitizedInput);
                     storedName = sanitizedInput;
                 }
             }
@@ -222,7 +222,7 @@
                     console.log("Animations previously completed. Displaying statically.");
                     document.getElementById('title').textContent = "The Ambition";
                     document.getElementById('writtenBy').textContent = "Written by: Soham Sasan";
-                    var storedNameStatic = localStorage.getItem("userName"); 
+                    var storedNameStatic = sessionStorage.getItem("sessionUserName"); 
 
                     if (storedNameStatic) {
                         personalizedGreetingElement.textContent = "Welcome to \"The Ambition\", " + storedNameStatic + ".";
@@ -309,7 +309,7 @@
                     }
                     console.log("showResetButton: Reset button created and added.");
                     resetButton.addEventListener("click", function () {
-                        localStorage.removeItem("userName");
+                        sessionStorage.removeItem("sessionUserName");
                         try {
                             sessionStorage.removeItem('mainPageAnimated'); 
                         } catch (e) {
