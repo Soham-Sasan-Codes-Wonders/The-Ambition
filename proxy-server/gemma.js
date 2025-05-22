@@ -8,11 +8,9 @@ const fs = require('fs');
 const app = express();
 const PORT = 3003;
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const uploadDir = 'uploads';
-        // Create uploads directory if it doesn't exist
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir);
         }
@@ -26,7 +24,7 @@ const storage = multer.diskStorage({
 const upload = multer({ 
     storage: storage,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
+        fileSize: 5 * 1024 * 1024 
     },
     fileFilter: function(req, file, cb) {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -40,9 +38,8 @@ const upload = multer({
 
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads')); // Serve uploaded files
+app.use('/uploads', express.static('uploads')); 
 
-// Regular chat completion endpoint
 app.post('/v1/chat/completions', (req, res) => {
     const requestData = JSON.stringify(req.body);
     
@@ -79,13 +76,11 @@ app.post('/v1/chat/completions', (req, res) => {
     proxyReq.end();
 });
 
-// File upload endpoint
 app.post('/upload', upload.single('image'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    // Return the file URL
     const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
     res.json({ 
         success: true, 
@@ -94,7 +89,6 @@ app.post('/upload', upload.single('image'), (req, res) => {
     });
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         return res.status(400).json({ error: err.message });
