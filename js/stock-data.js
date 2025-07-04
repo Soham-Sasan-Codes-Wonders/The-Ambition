@@ -99,16 +99,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             console.log(`Raw API response for ${symbol}:`, JSON.stringify(data, null, 2));
 
-            if (data['Monthly Adjusted Time Series']) {
-                return data['Monthly Adjusted Time Series'];
-            } else if (data['Note']) {
-                console.warn(`API Note for ${symbol}: ${data['Note']}`);
-                return { error: 'API limit/issue', note: data['Note'] };
-            } else if (Object.keys(data).length === 0 && data.constructor === Object) {
-                console.warn(`Received empty object response for ${symbol}:`, data);
-                return { error: 'Received empty response from API (check symbol or daily limit).' };
+            if (data && data.c && data.t) {
+                const dates = data.t.map(ts => {
+                    const d = new Date(ts * 1000);
+                    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                });
+
+                return {
+                    dates,
+                    closingPrices: data.c
+                };
+            } else if (data.s === "no_data") {
+                return { error: 'No data available for this symbol.' };
             } else {
-                console.warn(`Unexpected API response structure for ${symbol}:`, data);
                 return { error: 'Unexpected API response format.' };
             }
         } catch (error) {
@@ -132,23 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await fetchStockData(stockInfo.symbol);
 
             if (data && !data.error) {
-                const dates = Object.keys(data).sort((a, b) => new Date(a) - new Date(b));
-                const recentDates = dates.slice(-30);
-
-                const closingPrices = [];
-
-                for (let j = 0; j < recentDates.length; j++) {
-                    const date = recentDates[j];
-                    const dayData = data[date];
-                    const close = parseFloat(dayData['4. close']);
-                    closingPrices.push(close);
-                }
+                const { dates, closingPrices } = data;
 
                 const overallColor = closingPrices[closingPrices.length - 1] >= closingPrices[0] ? 'limegreen' : 'red';
 
                 const chart = chartInstances[key];
                 if (chart) {
-                    chart.data.labels = recentDates;
+                    chart.data.labels = dates;
                     chart.data.datasets[0].data = closingPrices;
                     chart.data.datasets[0].borderColor = overallColor;
                     chart.data.datasets[0].backgroundColor = overallColor;
