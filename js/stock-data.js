@@ -152,8 +152,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 await sleep(15000);
             }
         }
+        const cacheData = {};
+        selectedKeys.forEach(key => {
+            const chart = chartInstances[key];
+            if (chart) {
+                cacheData[key] = {
+                    dates: chart.data.labels,
+                    closingPrices: chart.data.datasets[0].data
+                };
+            }
+        });
+        sessionStorage.setItem('etfChartData', JSON.stringify({
+            timestamp: Date.now(),
+            data: cacheData
+        }));
     }
 
+    const cache = sessionStorage.getItem('etfChartData');
+    if (cache) {
+        const parsed = JSON.parse(cache);
+        const maxAge = 10 * 60 * 1000; // 10 minutes
+        if (Date.now() - parsed.timestamp < maxAge) {
+            console.log("Loading ETF data from session cache...");
+            Object.entries(parsed.data).forEach(([key, { dates, closingPrices }]) => {
+                const overallColor = closingPrices[closingPrices.length - 1] >= closingPrices[0] ? 'limegreen' : 'red';
+                const chart = chartInstances[key];
+                if (chart) {
+                    chart.data.labels = dates;
+                    chart.data.datasets[0].data = closingPrices;
+                    chart.data.datasets[0].borderColor = overallColor;
+                    chart.data.datasets[0].backgroundColor = overallColor;
+                    chart.update();
+                }
+            });
+            return;
+        }
+    }
     updateAllStocks();
     setInterval(updateAllStocks, 5 * 60 * 1000);
 });
