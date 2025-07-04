@@ -99,18 +99,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             console.log(`Raw API response for ${symbol}:`, JSON.stringify(data, null, 2));
 
-            if (data && data.c && data.t) {
-                const dates = data.t.map(ts => {
-                    const d = new Date(ts * 1000);
-                    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                });
-
-                return {
-                    dates,
-                    closingPrices: data.c
-                };
-            } else if (data.s === "no_data") {
-                return { error: 'No data available for this symbol.' };
+            if (data && data.status === "ok" && Array.isArray(data.values)) {
+                const reversed = data.values.slice().reverse(); // oldest to newest
+                const dates = reversed.map(entry => entry.datetime);
+                const closingPrices = reversed.map(entry => parseFloat(entry.close));
+                return { dates, closingPrices };
+            } else if (data.code || data.message) {
+                return { error: data.message || "API returned an error." };
             } else {
                 return { error: 'Unexpected API response format.' };
             }
